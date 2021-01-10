@@ -1,0 +1,4 @@
+model/
+weather_env/
+.ipynb_checkpoints/
+.idea/
