@@ -1,8 +1,13 @@
-import numpy as np
-import pandas as pd
 import datetime
 
-class WeatherPreprocessing():
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import tensorflow as tf
+
+
+class WeatherPreprocessing:
 
     def __init__(self):
         self.data = None
@@ -25,7 +30,7 @@ class WeatherPreprocessing():
         bad_max_wv = max_wv == -9999.0
         max_wv[bad_max_wv] = 0.0
 
-    def feature_engineer(self):
+    def create_features(self):
         # Create direction vector combining direction degree and speed
         wv = self.data.pop('wv (m/s)')
         max_wv = self.data.pop('max. wv (m/s)')
@@ -45,7 +50,7 @@ class WeatherPreprocessing():
         timestamp_s = self.date_time.map(datetime.datetime.timestamp)
 
         day = 24 * 60 * 60
-        year = (365.2425) * day
+        year = 365.2425 * day
 
         self.data['Day sin'] = np.sin(timestamp_s * (2 * np.pi / day))
         self.data['Day cos'] = np.cos(timestamp_s * (2 * np.pi / day))
@@ -67,7 +72,7 @@ class WeatherPreprocessing():
         # Clean data
         self.clean()
         # Feature engineering
-        self.feat_eng()
+        self.create_features()
         # Normalization
         self.normalize(calculate_metrics=True)
 
@@ -76,7 +81,7 @@ class WeatherPreprocessing():
         # Clean data
         self.clean()
         # Feature engineering
-        self.feat_eng()
+        self.create_features()
         # Normalization
         self.normalize(calculate_metrics=True)
 
@@ -87,7 +92,7 @@ class WeatherPreprocessing():
         # Clean data
         self.clean()
         # Feature engineering
-        self.feat_eng()
+        self.create_features()
         # Normalization
         self.normalize(calculate_metrics=False)
 
@@ -102,19 +107,19 @@ class WeatherPreprocessing():
             files.download(path)
 
         def load_params(self, path):
-            params = pd.read_csv(path)
+            params_load = pd.read_csv(path)
 
-            means = params['mean']
-            means.index = params['feature']
-            self.means = params['mean']
+            means = params_load['mean']
+            means.index = params_load['feature']
+            self.means = params_load['mean']
 
-            stds = params['std']
-            stds.index = params['feature']
-            self.stds = params['std']
+            stds = params_load['std']
+            stds.index = params_load['feature']
+            self.stds = params_load['std']
 
 
 
-class WindowGenerator():
+class WindowGenerator:
 
     def __init__(self, input_width, label_width, shift,
                train_df, val_df, test_df,
@@ -242,9 +247,9 @@ class WindowGenerator():
             f'Label column name(s): {self.label_columns}'])
 
 
-class WeatherModel():
+class WeatherModel:
 
-    def __init__(self, input_shape):
+    def __init__(self, input_shape, out_steps):
         # Initialize model
         # Input layer (batch, timesteps, features)
         inputs = tf.keras.layers.Input(shape=input_shape)
@@ -252,12 +257,12 @@ class WeatherModel():
         lstm = tf.keras.layers.LSTM(12)(inputs)
         # Dense layer
         dense = tf.keras.layers.Dense(
-            OUT_STEPS * 1,
+            out_steps * 1,
             activation='linear',
             kernel_initializer=tf.initializers.zeros
         )(lstm)
         # Shape => [batch, out_steps, label_features]
-        reshape = tf.keras.layers.Reshape([OUT_STEPS, 1])(dense)
+        reshape = tf.keras.layers.Reshape([out_steps, 1])(dense)
 
         multi_lstm_model = tf.keras.Model(inputs=inputs, outputs=reshape)
 
