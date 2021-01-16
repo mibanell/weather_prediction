@@ -3,8 +3,10 @@ import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import tensorflow as tf
+
+if 'google.colab' in str(get_ipython()):
+    from google.colab import files
 
 
 class WeatherPreprocessing:
@@ -103,8 +105,6 @@ class WeatherPreprocessing:
         params = pd.DataFrame({'feature': self.means.index, 'mean': self.means.values, 'std': self.stds.values})
         # Save as CSV
         params.to_csv(path, index=False)
-        if 'google.colab' in str(get_ipython()):
-            files.download(path)
 
         def load_params(self, path):
             params_load = pd.read_csv(path)
@@ -289,8 +289,6 @@ class WeatherModel:
 
     def save_weights(self, **kwargs):
         self.model.save_weights(**kwargs)
-        if 'google.colab' in str(get_ipython()):
-            files.download(kwargs['filepath'])
 
     def load_weights(self, **kwargs):
         self.model.load_weights(**kwargs)
