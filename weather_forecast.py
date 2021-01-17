@@ -3,10 +3,15 @@ import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.express as px
 import tensorflow as tf
 
-if 'google.colab' in str(get_ipython()):
-    from google.colab import files
+try:
+    if 'google.colab' in str(get_ipython()):
+        from google.colab import files
+except:
+    print(NameError)
 
 
 class WeatherPreprocessing:
@@ -155,9 +160,9 @@ class WindowGenerator:
         inputs = features[:, self.input_slice, :]
         labels = features[:, self.labels_slice, :]
         if self.label_columns is not None:
-          labels = tf.stack(
-              [labels[:, :, self.column_indices[name]] for name in self.label_columns],
-              axis=-1)
+            labels = tf.stack(
+                [labels[:, :, self.column_indices[name]] for name in self.label_columns],
+                axis=-1)
 
         # Slicing doesn't preserve static shape information, so set the shapes
         # manually. This way the `tf.data.Datasets` are easier to inspect.
@@ -172,31 +177,73 @@ class WindowGenerator:
         plot_col_index = self.column_indices[plot_col]
         max_n = min(max_subplots, len(inputs))
         for n in range(max_n):
-          plt.subplot(3, 1, n+1)
-          plt.ylabel(f'{plot_col} [normed]')
-          plt.plot(self.input_indices, inputs[n, :, plot_col_index],
-                  label='Inputs', marker='.', zorder=-10)
+            plt.subplot(3, 1, n+1)
+            plt.ylabel(f'{plot_col} [normed]')
+            plt.plot(self.input_indices, inputs[n, :, plot_col_index],
+                label='Inputs', marker='.', zorder=-10)
 
-          if self.label_columns:
+            if self.label_columns:
+                label_col_index = self.label_columns_indices.get(plot_col, None)
+            else:
+                label_col_index = plot_col_index
+
+            if label_col_index is None:
+                continue
+
+            else:
+                plt.scatter(self.label_indices, labels[n, :, label_col_index],
+                    edgecolors='k', label='Labels', c='#2ca02c', s=64)
+            if model is not None:
+                predictions = model.model(inputs)
+                plt.scatter(self.label_indices, predictions[n, :, :],
+                    marker='X', edgecolors='k', label='Predictions',
+                    c='#ff7f0e', s=64)
+
+            if n == 0:
+                plt.legend()
+
+        plt.xlabel('Time [h]')
+
+    def plot_interactive(self, model=None, plot_col='T (degC)', max_subplots=3):
+        inputs, labels = self.example
+        plot_col_index = self.column_indices[plot_col]
+        n = 1
+        layout = go.Layout(
+            plot_bgcolor='#ffffff'
+        )
+        fig = go.Figure(layout=layout)
+        fig.add_trace(go.Scatter(
+            x=self.input_indices, y=inputs[n, :, plot_col_index], mode='lines',
+            marker={'size': 10, 'color': '#022963'}, line={'width': 5}, fill='tozeroy', name="Input"
+        ))
+
+        if self.label_columns:
             label_col_index = self.label_columns_indices.get(plot_col, None)
-          else:
+        else:
             label_col_index = plot_col_index
 
-          if label_col_index is None:
-            continue
-
-          plt.scatter(self.label_indices, labels[n, :, label_col_index],
-                      edgecolors='k', label='Labels', c='#2ca02c', s=64)
-          if model is not None:
+        fig.add_trace(go.Scatter(
+            x=self.label_indices, y=labels[n, :, label_col_index], mode='lines',
+            marker={'size': 7, 'color': '#022963'}, opacity=0.3,
+            line={'dash': 'dash', 'width': 5}, name="Real"
+        ))
+        if model is not None:
             predictions = model.model(inputs)
-            plt.scatter(self.label_indices, predictions[n, :, :],
-                        marker='X', edgecolors='k', label='Predictions',
-                        c='#ff7f0e', s=64)
+            fig.add_trace(go.Scatter(
+                x=self.label_indices, y=predictions[n, :, 0], mode='lines',
+                marker={'size': 10, 'color': '#022963'},
+                line={'dash': 'dash', 'width': 5}, name="Forecast"
+            ))
 
-          if n == 0:
-            plt.legend()
+        fig.update_layout(
+            title="Temperature forecast",
+            xaxis_title="Time [h]",
+            yaxis_title="Temperature degC [normed]",
+            legend_title="Temperature time series"
+        )
 
-          plt.xlabel('Time [h]')
+        fig.show()
+        fig.write_html('forecast_example.html', auto_open=True)
 
     def make_dataset(self, data, shuffle):
         data = np.array(data, dtype=np.float32)
