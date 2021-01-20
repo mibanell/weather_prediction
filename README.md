@@ -1,3 +1,3 @@
 # weather_prediction
 
-<img src="forecast_example.jpeg" style="width:100%;">
+<img src="forecast_example.PNG" style="width:100%;">
