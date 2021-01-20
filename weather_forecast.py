@@ -212,9 +212,17 @@ class WindowGenerator:
             plot_bgcolor='#ffffff'
         )
         fig = go.Figure(layout=layout)
+        fig.update_xaxes(
+            showgrid=False, color='#b8b8b8'
+        )
+        fig.update_yaxes(
+            showgrid=True, gridwidth=1, gridcolor='#d9d9d9', color='#b8b8b8'
+        )
+
+        color_lines = '#0546b5'
         fig.add_trace(go.Scatter(
             x=self.input_indices, y=inputs[n, :, plot_col_index], mode='lines',
-            marker={'size': 10, 'color': '#022963'}, line={'width': 5}, fill='tozeroy', name="Input"
+            line={'width': 5, 'color': color_lines, 'shape': 'spline'}, name="Input"
         ))
 
         if self.label_columns:
@@ -223,16 +231,15 @@ class WindowGenerator:
             label_col_index = plot_col_index
 
         fig.add_trace(go.Scatter(
-            x=self.label_indices, y=labels[n, :, label_col_index], mode='lines',
-            marker={'size': 7, 'color': '#022963'}, opacity=0.3,
-            line={'dash': 'dash', 'width': 5}, name="Real"
+            x=self.label_indices, y=labels[n, :, label_col_index], mode='markers',
+            opacity=0.3, line={'dash': 'dash', 'width': 5, 'color': color_lines, 'shape': 'spline'}, name="Real"
         ))
         if model is not None:
             predictions = model.model(inputs)
+            a = np.empty_like(predictions)
             fig.add_trace(go.Scatter(
-                x=self.label_indices, y=predictions[n, :, 0], mode='lines',
-                marker={'size': 10, 'color': '#022963'},
-                line={'dash': 'dash', 'width': 5}, name="Forecast"
+                x=self.label_indices, y=predictions[n, :, 0], mode='markers',
+                line={'dash': 'dashdot', 'width': 5, 'color': color_lines, 'shape': 'spline'}, name="Forecast"
             ))
 
         fig.update_layout(
@@ -243,7 +250,7 @@ class WindowGenerator:
         )
 
         fig.show()
-        fig.write_html('forecast_example.html', auto_open=True)
+        fig.write_html('forecast_example.html', auto_open=False)
 
     def make_dataset(self, data, shuffle):
         data = np.array(data, dtype=np.float32)
