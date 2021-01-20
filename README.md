@@ -1,3 +1,3 @@
 # weather_prediction
 
-{% include forecast_example.html %}
+<img src="forecast_example.jpeg" style="width:100%;">
