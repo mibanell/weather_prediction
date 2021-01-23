@@ -10,5 +10,5 @@ The repository main files are:
 
 * [weather_forecast.py](weather_forecast.py): Contains the core classes for data preprocessing and model training.
 
-* [weather_forecas.ipynb](weather_forecast.ipynb): Jupyter notebook used to train and evaluate the model.
+* [weather_forecast.ipynb](weather_forecast.ipynb): Jupyter notebook used to train and evaluate the model.
 
