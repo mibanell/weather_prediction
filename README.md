@@ -3,7 +3,7 @@
   <img src="forecast_example.PNG" style="width:100%;">
 </div>
 
-div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+<div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
         <script type="text/javascript">/**
 * plotly.js v1.58.4
 * Copyright 2012-2020, Plotly, Inc.
