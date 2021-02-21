@@ -1,13 +1,6 @@
 
-extra_javascript:
-    plot_js.js
-
 <div align="center">
   <img src="forecast_example.PNG" style="width:100%;">
-</div>
-
-<div>
-    <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
 </div>
 
 # Overview
