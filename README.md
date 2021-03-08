@@ -3,7 +3,7 @@
   <img src="forecast_example.PNG" style="width:100%;">
 </div>
 
-# Overview
+## Overview
 In this repository I developed a recurrent neural network for temperature forecast.
 
 The repository main files are:
