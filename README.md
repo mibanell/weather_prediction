@@ -12,3 +12,15 @@ The repository main files are:
 
 * [weather_forecast.ipynb](weather_forecast.ipynb): Jupyter notebook used to train and evaluate the model.
 
+## Author
+
+<p align="center">
+  <a href="https://github.com/miguelangelbg">
+    <img  src="img/avatar_500_round.png" width="100">
+  </a>
+</p>
+<p align="center">
+    <a href="https://github.com/miguelangelbg">Miguel Ángel Ballester Granell</a>
+    <br>
+    <a href="https://www.linkedin.com/in/miguelangelballestergranell/">LinkedIn</a>
+</p>
